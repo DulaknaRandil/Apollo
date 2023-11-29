@@ -1,4 +1,11 @@
+import 'package:apollodemo1/auth/user_profile.dart';
 import 'package:apollodemo1/json/songs_json.dart';
+import 'package:apollodemo1/pages/auth_page.dart';
+import 'package:apollodemo1/pages/homepage.dart';
+import 'package:apollodemo1/pages/login_or_register.dart';
+import 'package:apollodemo1/pages/login_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -23,6 +30,11 @@ class _HomepageState extends State<Homepage> {
   List<Map<String, dynamic>>? selectedPlaylistTracks;
   List<Map<String, dynamic>>? selectedCategoryPlaylists;
   List<Map<String, dynamic>> playlists = [];
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  String? profileImage;
+  String? uName;
+  String? eMail;
 
   @override
   Future<List<Map<String, dynamic>>> fetchPlaylistsFromApi(String genre) async {
@@ -187,6 +199,10 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  void signUserOut() {
+    FirebaseAuth.instance.signOut();
+  }
+
   Future<List<Map<String, dynamic>>> _getUserPlaylists(
       String accessToken) async {
     final url = Uri.parse(
@@ -204,6 +220,34 @@ class _HomepageState extends State<Homepage> {
       return List<Map<String, dynamic>>.from(data['items']);
     } else {
       throw Exception('Failed to fetch user playlists');
+    }
+  }
+
+  void getProfilePhoto() async {
+    setState(() {
+      var _isLoading = true;
+    });
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      final db = FirebaseFirestore.instance;
+
+      if (user != null) {
+        DocumentSnapshot documentSnapshot =
+            await db.collection('users').doc(user.uid).get();
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        profileImage = userData['profileImage'];
+        eMail = userData['emailAddress'];
+        uName = userData['firstName'];
+        setState(() {});
+        print(profileImage);
+      } else {
+        setState(() {});
+        print("User not signed in");
+      }
+    } catch (e) {
+      setState(() {});
+      print("Error getting user information: $e");
     }
   }
 
@@ -226,6 +270,8 @@ class _HomepageState extends State<Homepage> {
       });
     });
     _fetchUserPlaylists();
+    getCurrentUserInfo();
+    getProfilePhoto();
   }
 
   @override
@@ -234,14 +280,101 @@ class _HomepageState extends State<Homepage> {
       backgroundColor: Colors.black,
       appBar: getAppBar(),
       body: getBody(),
+      endDrawer: Drawer(
+        backgroundColor: Colors.black,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              accountName: Text(
+                nameController.text,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              accountEmail: Text(
+                emailController.text,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                backgroundImage: profileImage != null
+                    ? NetworkImage(profileImage!)
+                    : null, // If profileImage is null, do not set the backgroundImage
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'Profile',
+                style: TextStyle(color: Colors.amber),
+              ),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()));
+                // Navigate to the profile page or perform the corresponding action
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Check Mood',
+                style: TextStyle(color: Colors.amber),
+              ),
+              onTap: () {
+                // Navigate to the mood-check page or perform the corresponding action
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HomePage()));
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Log Out',
+                style: TextStyle(color: Colors.amber),
+              ),
+              onTap: () {
+                // Call the method to sign out the user
+                signUserOut();
+                // Navigate to the login or register page or perform any other actions
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => AuthPage()),
+                );
+                // Add this line ));
+                // For example, you might want to clear authentication tokens, etc.
+              },
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  void getCurrentUserInfo() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        nameController.text = user.displayName ?? "No Name";
+        emailController.text = user.email ?? "No Email";
+      } else {
+        print("User not signed in");
+      }
+    } catch (e) {
+      print("Error getting user information: $e");
+    }
   }
 
   AppBar getAppBar() {
     return AppBar(
       backgroundColor: Colors.black,
       elevation: 0,
-      title: const Padding(
+      title: Padding(
         padding: EdgeInsets.only(left: 10, right: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,7 +387,6 @@ class _HomepageState extends State<Homepage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Icon(FeatherIcons.list)
           ],
         ),
       ),

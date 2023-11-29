@@ -248,6 +248,8 @@ class _ArtistPageState extends State<ArtistPage> {
                                   color: Colors.amber,
                                   img: track['album']['images'][0]['url'],
                                   songUrl: track['id'],
+                                  playlistId: widget.artistId,
+                                  trackType: "artist",
                                 ),
                               ),
                             );
@@ -388,6 +390,8 @@ class _ArtistPageState extends State<ArtistPage> {
                     color: Colors.amber,
                     img: artistData['images'][0]['url'],
                     songUrl: track['id'],
+                    playlistId: widget.artistId,
+                    trackType: "artist",
                   ),
                 ),
               );

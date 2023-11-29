@@ -1,3 +1,5 @@
+import 'package:apollodemo1/auth/login_screen.dart';
+import 'package:apollodemo1/auth/registration_screen%20(2).dart';
 import 'package:apollodemo1/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
@@ -24,11 +26,11 @@ class _MyWidgetState extends State<LoginOrRegisterPage> {
   @override
   Widget build(BuildContext context) {
     if (showLoginPage) {
-      return LoginPage(
+      return LoginScreen(
         onTap: togglePages,
       );
     } else {
-      return RegisterPage(
+      return RegistrationScreen(
         onTap: togglePages,
       );
     }

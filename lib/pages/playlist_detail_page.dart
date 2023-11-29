@@ -25,6 +25,7 @@ class PlaylistDetailPage extends StatefulWidget {
 class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   List<Map<String, dynamic>> playlistTracks = [];
   Color primary = Colors.amber;
+  bool playAds = true;
 
   @override
   void initState() {
@@ -135,6 +136,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                     img: trackImage,
                                     songUrl: previewUrl,
                                     color: primary,
+                                    playlistId: widget.playlistId,
+                                    trackType: "playlist",
                                   ),
                                 ),
                               );

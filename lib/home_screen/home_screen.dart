@@ -1,4 +1,6 @@
+import 'package:apollodemo1/auth/user_profile.dart';
 import 'package:apollodemo1/home_screen/search_page.dart';
+import 'package:apollodemo1/pages/user_playlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -29,27 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
       index: activeTab,
       children: [
         Homepage(),
-        Center(
-          child: Text(
-            "Saved playlists",
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        UserPlaylistsPage(),
         SearchPage(),
-        Center(
-          child: Text(
-            "Settings",
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        ProfileScreen(),
       ],
     );
   }

@@ -171,6 +171,8 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                       color: Colors.amber,
                       img: albumData['images'][0]['url'],
                       songUrl: song['id'],
+                      trackType: "album",
+                      playlistId: widget.albumId,
                     ),
                   ),
                 );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends StatefulWidget {
   final String artistId; // Add artist ID
@@ -124,7 +125,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text(artistName), // Display artist's name in the app bar
+        title: Text("Chat Bot"), // Display artist's name in the app bar
       ),
       body: Column(
         children: <Widget>[
@@ -280,7 +281,8 @@ class ChatMessageWidget extends StatelessWidget {
         children: [
           if (!message.isUserMessage)
             CircleAvatar(
-              backgroundImage: NetworkImage(artistImageURL),
+              backgroundImage: AssetImage('assets/bot.png'),
+              backgroundColor: Colors.black,
               radius: 16,
             ),
           SizedBox(width: 8),

@@ -224,6 +224,8 @@ class _SearchPageState extends State<SearchPage> {
                                   color: Colors.amber,
                                   img: imageUrl,
                                   songUrl: resultId,
+                                  playlistId: '',
+                                  trackType: '',
                                 ),
                               ),
                             );
@@ -298,6 +300,8 @@ class _SearchPageState extends State<SearchPage> {
                               color: Colors.amber,
                               img: imageUrl,
                               songUrl: resultId,
+                              playlistId: '',
+                              trackType: "",
                             ),
                           ),
                         );
