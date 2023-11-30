@@ -326,7 +326,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       children: <Widget>[
                         // Image Profile Widget
                         imageProfile(),
-
+                        SizedBox(height: 5),
                         Text(
                           "Let's create an account for you!",
                           style: TextStyle(
@@ -367,7 +367,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            const Text("Already have an account? "),
+                            const Text(
+                              "Already have an account? ",
+                              style: TextStyle(color: Colors.white),
+                            ),
                             GestureDetector(
                               onTap: widget.onTap,
                               child: const Text(

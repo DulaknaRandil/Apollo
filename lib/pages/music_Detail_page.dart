@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:antdesign_icons/antdesign_icons.dart';
 import 'package:audio_service/audio_service.dart';
@@ -13,6 +14,9 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class MusicDetailPage extends StatefulWidget {
   String title;
@@ -60,6 +64,68 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
 
   String formatTime(int seconds) {
     return '${Duration(seconds: seconds)}'.split('.')[0].padLeft(8, '0');
+  }
+
+  void _onValidate() {
+    // Get the current user
+
+    if (user != null) {
+      // Reference to Firestore
+      CollectionReference cardCollection =
+          FirebaseFirestore.instance.collection('cards');
+
+      // Add card details to Firestore
+
+      // Check if payment details are present
+      checkPaymentDetails(user!.uid);
+    }
+  }
+
+  // New method to check if payment details are present
+  void checkPaymentDetails(String userId) {
+    CollectionReference cardCollection =
+        FirebaseFirestore.instance.collection('cards');
+
+    cardCollection
+        .where('userId', isEqualTo: userId)
+        .limit(1)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        // Payment details are present, disable ads
+        setState(() {
+          enableAds = false;
+          print(enableAds);
+        });
+      }
+    }).catchError((error) {
+      print('Error checking payment details: $error');
+    });
+  }
+
+  void checkSubscriptionStatus() async {
+    // TODO: Replace with your actual logic to get the current user's UID
+    String currentUserUID = 'your_current_user_uid';
+
+    // Fetch user document from Firestore
+    var userDoc = await FirebaseFirestore.instance
+        .collection('free_plan')
+        .doc(currentUserUID)
+        .get();
+
+    if (userDoc.exists) {
+      // Extract subscription status and start date
+      bool subscriptionStatus = userDoc['subscriptionStatus'];
+      Timestamp startDate = userDoc['startDate'];
+
+      // Check if the free month has passed (30 days)
+      bool freeMonthExpired =
+          DateTime.now().difference(startDate.toDate()).inDays >= 30;
+
+      // Update enableAds based on subscriptionStatus and freeMonthExpired
+      enableAds =
+          !subscriptionStatus || (subscriptionStatus && !freeMonthExpired);
+    }
   }
 
   InterstitialAd? _interstitialAd;
@@ -303,7 +369,6 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                   artUri: Uri.parse(nextImageUrl),
                 ),
               ));
-              await _audioPlayer.play();
 
               // Update widget.songUrl
               setState(() {
@@ -321,6 +386,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
               }
 
               isPlaying = false;
+              await _audioPlayer.play();
               setState(() {
                 position = Duration.zero;
               });
@@ -398,7 +464,6 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                   artUri: Uri.parse(previousImageUrl),
                 ),
               ));
-              await _audioPlayer.play();
 
               // Update widget.songUrl
               setState(() {
@@ -416,6 +481,8 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
               }
 
               isPlaying = false;
+              await _audioPlayer.play();
+
               setState(() {
                 position = Duration.zero;
               });
@@ -443,6 +510,152 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
       final newPosition = position - Duration(seconds: 5);
       await _audioPlayer.seek(newPosition);
       //  }
+    }
+  }
+
+  Future<void> playRandomSong(List<Map<String, dynamic>> tracks) async {
+    if (tracks.isNotEmpty) {
+      // Get a random index for the playlist
+      final randomIndex = Random().nextInt(tracks.length);
+
+      // Get information about the randomly selected track
+      final randomTrack = tracks[randomIndex];
+      final randomTrackId = randomTrack['id'];
+      final randomSongUrl = 'https://api.spotify.com/v1/tracks/$randomTrackId';
+      final randomArtistName = randomTrack['artist'];
+      final randomSongName = randomTrack['name'];
+      final randomImageUrl = randomTrack['image'];
+
+      try {
+        // Perform authentication with the Spotify API
+        final authResponse = await http.post(
+          Uri.parse(authUrl),
+          headers: {
+            'Authorization':
+                'Basic ${base64Encode(utf8.encode("$clientId:$clientSecret"))}',
+          },
+          body: {'grant_type': 'client_credentials'},
+        );
+
+        if (authResponse.statusCode == 200) {
+          final Map<String, dynamic> authData = json.decode(authResponse.body);
+          final String accessToken = authData['access_token'];
+
+          // Retrieve information about the randomly selected track
+          final trackResponse = await http.get(
+            Uri.parse(randomSongUrl),
+            headers: {'Authorization': 'Bearer $accessToken'},
+          );
+
+          if (trackResponse.statusCode == 200) {
+            final Map<String, dynamic> trackData =
+                json.decode(trackResponse.body);
+            final String audioUrl = trackData['preview_url'];
+
+            if (audioUrl != null && audioUrl.isNotEmpty) {
+              // Set the audio source for the _audioPlayer with the new track information
+              await _audioPlayer.setAudioSource(AudioSource.uri(
+                Uri.parse(audioUrl),
+                tag: MediaItem(
+                  id: randomTrackId,
+                  artist: randomArtistName,
+                  title: randomSongName,
+                  artUri: Uri.parse(randomImageUrl),
+                ),
+              ));
+
+              // Update widget properties with information about the random track
+              setState(() {
+                widget.songUrl = randomTrackId;
+                widget.title = randomSongName;
+                widget.img = randomImageUrl;
+                widget.description = randomArtistName;
+              });
+
+              // Update player state and play the random song
+              isPlaying = false;
+              await _audioPlayer.play();
+
+              setState(() {
+                position = Duration.zero;
+              });
+
+              if (enableAds) {
+                loadInterstitialAd();
+              }
+            } else {
+              print('Error: Preview URL for random track is null or empty');
+            }
+          } else {
+            print(
+                'Error fetching random track details: ${trackResponse.statusCode}');
+          }
+        } else {
+          print('Error authenticating: ${authResponse.statusCode}');
+        }
+      } catch (e) {
+        print('Error loading random song: $e');
+      }
+    } else {
+      print('Error: Playlist is empty');
+    }
+  }
+
+  void showMoreOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            'More Options',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.share, color: Colors.white),
+                title: Text(
+                  'Share Song',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  // Call a function to share the song URL
+                  shareSong();
+                  Navigator.pop(context);
+                },
+              ),
+              // Add more options as needed
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void shareSong() async {
+    final String songUrl =
+        'https://api.spotify.com/v1/tracks/${widget.songUrl}';
+    final String whatsappUrl =
+        'whatsapp://send?text=Check out this awesome song: $songUrl';
+
+    try {
+      await launchUrlString(Uri.parse(whatsappUrl).toString());
+    } catch (e) {
+      print('Error launching WhatsApp: $e');
+      // Handle the error as needed
     }
   }
 
@@ -483,7 +696,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
           ));
           await _audioPlayer.play();
 
-          isPlaying = false;
+          isPlaying = true;
           setState(() {
             position = Duration.zero;
           });
@@ -491,7 +704,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
           if (enableAds) {
             loadInterstitialAd();
           }
-          playNextInPlaylist(playlistTracks);
+          // playNextInPlaylist(playlistTracks);
         } catch (e) {
           print('Error loading song: $e');
         }
@@ -674,6 +887,14 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
     );
   }
 
+  String shortenTitle(String title, int maxWords) {
+    List<String> words = title.split(' ');
+    if (words.length > maxWords) {
+      return words.take(maxWords).join(' ') + '...';
+    }
+    return title;
+  }
+
 // Function to fetch existing playlists from Firestore
   Future<List<String>> fetchUserPlaylists() async {
     try {
@@ -807,6 +1028,8 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
     });
     playSong();
     fetchSongDetails();
+    checkPaymentDetails(user!.uid);
+    checkSubscriptionStatus();
   }
 
   @override
@@ -828,12 +1051,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
     return AppBar(
       backgroundColor: Colors.black,
       elevation: 0,
-      actions: const [
-        IconButton(
-          onPressed: null,
-          icon: Icon(FeatherIcons.moreVertical, color: Colors.white),
-        )
-      ],
+      actions: const [],
     );
   }
 
@@ -907,12 +1125,18 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        widget.title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            shortenTitle(widget.title, 3),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                       Container(
@@ -929,10 +1153,11 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                       ),
                     ],
                   ),
-                  Icon(
-                    //AntIcons.folderAddOutlined,
-                    FeatherIcons.moreVertical,
-                    color: Colors.white,
+                  IconButton(
+                    onPressed: () {
+                      showMoreOptionsDialog(); // You can create a function for the dialog
+                    },
+                    icon: Icon(FeatherIcons.moreVertical, color: Colors.white),
                   ),
                 ],
               ),
@@ -954,6 +1179,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                 print('Position: ${positionData.inSeconds}');
 
                 return ProgressBar(
+                  timeLabelTextStyle: TextStyle(color: Colors.white),
                   progress: position,
                   total: duration,
                   thumbColor: primary,
@@ -970,7 +1196,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
           SizedBox(
             height: 20,
           ),
-          Padding(
+          /*  Padding(
             padding: const EdgeInsets.only(
               left: 30,
               right: 30,
@@ -988,9 +1214,9 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                 ),
               ],
             ),
-          ),
+          ),*/
           SizedBox(
-            height: 25,
+            height: 20,
           ),
           Padding(
             padding: const EdgeInsets.only(
@@ -1002,7 +1228,7 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
               children: [
                 IconButton(
                   onPressed: () async {
-                    _audioPlayer.shuffle();
+                    await playRandomSong(playlistTracks);
                   },
                   icon: Icon(
                     FeatherIcons.shuffle,
@@ -1023,9 +1249,9 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                 IconButton(
                   onPressed: () {
                     if (isPlaying) {
-                      _audioPlayer.pause();
-                    } else {
                       _audioPlayer.play();
+                    } else {
+                      _audioPlayer.pause();
                     }
                     setState(() {
                       isPlaying = !isPlaying;
@@ -1038,8 +1264,8 @@ class _MusicDetailPageState extends State<MusicDetailPage> {
                     child: Center(
                       child: Icon(
                         isPlaying
-                            ? Entypo.controller_paus
-                            : Entypo.controller_play,
+                            ? Entypo.controller_play
+                            : Entypo.controller_paus,
                         size: 28,
                         color: Colors.white,
                       ),

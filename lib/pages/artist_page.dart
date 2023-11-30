@@ -31,7 +31,7 @@ class _ArtistPageState extends State<ArtistPage> {
   List<dynamic> artistAlbums = [];
   late String artistRanking = '';
   late Map<String, dynamic> artistInfo;
-
+  bool isFollowing = false;
   @override
   void initState() {
     super.initState();
@@ -147,8 +147,10 @@ class _ArtistPageState extends State<ArtistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Artist Page'),
+        backgroundColor: Colors.black,
+        title: Text('Artist'),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -176,19 +178,35 @@ class _ArtistPageState extends State<ArtistPage> {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                             SizedBox(height: 15),
                             Row(
                               children: [
                                 ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.amber)),
                                   onPressed: () {
                                     // Implement follow functionality
+                                    setState(() {
+                                      isFollowing =
+                                          !isFollowing; // Toggle the follow status
+                                    });
+
+                                    // You can add additional logic here, like sending a follow request to a server.
                                   },
-                                  child: Text('Follow'),
+                                  child: Text(
+                                      isFollowing ? 'Following' : 'Follow'),
                                 ),
                                 SizedBox(width: 10),
                                 ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.amber)),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -201,13 +219,9 @@ class _ArtistPageState extends State<ArtistPage> {
                                     );
                                     // Implement follow functionality
                                   },
-                                  child: Text('Chat'),
-                                ),
-                                IconButton(
-                                  icon: Icon(FeatherIcons.moreVertical),
-                                  onPressed: () {
-                                    // Implement more options functionality
-                                  },
+                                  child: Text(
+                                    'Chat',
+                                  ),
                                 ),
                               ],
                             ),
@@ -223,13 +237,16 @@ class _ArtistPageState extends State<ArtistPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Top Hits',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
 
                   // Artist Songs in a Horizontal Scrollable View
                   Container(
+                    color: Colors.black,
                     height: 200,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
@@ -255,8 +272,16 @@ class _ArtistPageState extends State<ArtistPage> {
                             );
                           },
                           child: Card(
+                            elevation:
+                                0, // Set elevation to 0 to remove the shadow
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.amber, width: 1.0),
+                              borderRadius: BorderRadius.circular(
+                                  3.0), // Adjust the radius as needed
+                            ),
                             child: Container(
                               width: 150,
+                              color: Colors.black,
                               child: Column(
                                 children: [
                                   Image.network(
@@ -268,7 +293,8 @@ class _ArtistPageState extends State<ArtistPage> {
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.white),
                                     ),
                                   ),
                                 ],
@@ -285,13 +311,16 @@ class _ArtistPageState extends State<ArtistPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Albums',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
 
                   // Artist Albums in a Horizontal Scrollable View
                   Container(
+                    color: Colors.black,
                     height: 200,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
@@ -311,16 +340,32 @@ class _ArtistPageState extends State<ArtistPage> {
                             );
                           },
                           child: Card(
-                            child: SingleChildScrollView(
-                              child: Container(
-                                width: 150,
-                                child: Column(
-                                  children: [
-                                    Image.network(album['images'][0]['url']),
-                                    SizedBox(height: 5),
-                                    Text(album['name']),
-                                  ],
-                                ),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.amber, width: 1.0),
+                              borderRadius: BorderRadius.circular(2.0),
+                            ),
+                            child: Container(
+                              width: 138,
+                              color: Colors.black,
+                              child: Column(
+                                children: [
+                                  Image.network(album['images'][0]['url']),
+                                  SizedBox(height: 5),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        album['name'],
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -337,9 +382,11 @@ class _ArtistPageState extends State<ArtistPage> {
                         Text(
                           'About',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 15),
                         CircleAvatar(
                           backgroundImage: NetworkImage(
                             artistData['images'][0]['url'],
@@ -351,15 +398,15 @@ class _ArtistPageState extends State<ArtistPage> {
                           artistRanking,
                           style: TextStyle(fontSize: 16),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 2),
                         Text(
                           'Related Genres: ${artistData['genres'].join(', ')}', // Display related genres
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         SizedBox(height: 10),
                         Text(
                           'Info: ${artistData['name'] ?? 'No information available'}',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ],
                     ),

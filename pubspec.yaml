@@ -84,7 +84,11 @@ dependencies:
   firebase_database: ^10.3.5
   flutter_credit_card: ^4.0.1
   provider: ^6.1.1
-  
+  google_fonts: ^4.0.4
+  share: ^2.0.4
+  url_launcher: ^6.0.12
+  mailer: ^6.0.1
+  flutter_local_notifications: ^16.2.0
 
   
 dev_dependencies:
@@ -115,6 +119,7 @@ flutter:
   - assets/images/
   - assets/audio/
   - assets/csvjson.json
+  - assets/wave.gif
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

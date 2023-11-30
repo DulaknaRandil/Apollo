@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:tflite_v2/tflite_v2.dart';
+import 'package:typicons_flutter/typicons_flutter.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -298,51 +300,71 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+              height: 30,
+            ),
             Text(
               'Hey...!',
-              style: const TextStyle(fontSize: 45, color: Colors.white),
+              style: TextStyle(
+                fontSize: 35.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             SizedBox(height: 10), // Adjust this value as needed
 
             Text(
               'Tell me your mood',
-              style: const TextStyle(fontSize: 40, color: Colors.white),
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 45,
             ),
             Column(
               children: [
                 if (!kIsWeb) // Only show camera-related UI on Android
                   Padding(
                     padding: EdgeInsets.all(20),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.amber, // Amber color
-                          width: 5, // Width of the border
-                        ),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.black, // Amber color
-                            width: 3, // Width of the border
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.amber, // Amber color
+                              width: 5, // Width of the border
+                            ),
                           ),
-                        ),
-                        child: ClipOval(
                           child: Container(
-                            height: 300,
-                            width: 300,
-                            child: !cameraController!.value.isInitialized
-                                ? Container()
-                                : AspectRatio(
-                                    aspectRatio:
-                                        cameraController!.value.aspectRatio,
-                                    child: CameraPreview(cameraController!),
-                                  ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.black, // Amber color
+                                width: 3, // Width of the border
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: Container(
+                                height: 300,
+                                width: 300,
+                                child: !cameraController!.value.isInitialized
+                                    ? Container()
+                                    : AspectRatio(
+                                        aspectRatio:
+                                            cameraController!.value.aspectRatio,
+                                        child: CameraPreview(cameraController!),
+                                      ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                     /*  Text(
                   output,
@@ -354,7 +376,7 @@ class _HomePageState extends State<HomePage> {
                   ),
               ],
             ),
-            SizedBox(height: 5),
+
             if (kIsWeb) // Show mood buttons only on the web
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -381,15 +403,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-            SizedBox(height: 20),
+            SizedBox(height: 35),
             Text(
               kIsWeb
                   ? 'Selected Mood: $selectedMood'
                   : 'Selected Mood: $output',
-              style: TextStyle(fontSize: 25, color: Colors.white),
+              style: TextStyle(fontSize: 22, color: Colors.white),
             ),
             SizedBox(
-              height: 30,
+              height: 5,
             ),
             if (output.isNotEmpty || kIsWeb)
               Column(
@@ -413,20 +435,20 @@ class _HomePageState extends State<HomePage> {
                     child: Text('View Songs',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 22,
+                          fontSize: 20,
                         )),
                   ),
                 ],
               ),
             SizedBox(
-              height: 35,
+              height: 10,
             ),
             Text(
               'Continue with Homepage',
-              style: TextStyle(fontSize: 25, color: Colors.white),
+              style: TextStyle(fontSize: 22, color: Colors.white),
             ),
             SizedBox(
-              height: 20,
+              height: 10,
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -440,7 +462,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: Text(
                 'Continue',
-                style: TextStyle(fontSize: 22),
+                style: TextStyle(fontSize: 20),
               ),
             ),
           ],

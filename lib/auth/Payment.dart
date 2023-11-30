@@ -56,10 +56,11 @@ class MySampleState extends State<MySample> {
       ),
       darkTheme: ThemeData(
         textTheme: const TextTheme(
-          headline6: TextStyle(color: Colors.white, fontSize: 18),
+          headline6:
+              TextStyle(color: Color.fromARGB(255, 89, 33, 243), fontSize: 18),
         ),
         inputDecorationTheme: InputDecorationTheme(
-          hintStyle: const TextStyle(color: Colors.white),
+          hintStyle: const TextStyle(color: Colors.black),
           labelStyle: const TextStyle(color: Colors.white),
           focusedBorder: border,
           enabledBorder: border,
@@ -87,7 +88,10 @@ class MySampleState extends State<MySample> {
                       children: <Widget>[
                         IconButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder:(context) => MyWidget()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyWidget()));
                           },
                           icon: Icon(Icons.arrow_back),
                         ),
@@ -284,34 +288,34 @@ class MySampleState extends State<MySample> {
     );
   }
 
-void _onValidate() {
-  if (formKey.currentState?.validate() ?? false) {
-    print('valid!');
+  void _onValidate() {
+    if (formKey.currentState?.validate() ?? false) {
+      print('valid!');
 
-    // Get the current user
-    User? user = FirebaseAuth.instance.currentUser;
+      // Get the current user
+      User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      // Reference to Firestore
-      CollectionReference cardCollection =
-          FirebaseFirestore.instance.collection('cards');
+      if (user != null) {
+        // Reference to Firestore
+        CollectionReference cardCollection =
+            FirebaseFirestore.instance.collection('cards');
 
-      // Add card details to Firestore
-      cardCollection.add({
-        'userId': user.uid,
-        'cardNumber': cardNumber,
-        'cardHolderName': cardHolderName,
-        'timestamp': FieldValue.serverTimestamp(), // Use FieldValue for timestamp
-      });
+        // Add card details to Firestore
+        cardCollection.add({
+          'userId': user.uid,
+          'cardNumber': cardNumber,
+          'cardHolderName': cardHolderName,
+          'timestamp':
+              FieldValue.serverTimestamp(), // Use FieldValue for timestamp
+        });
+      } else {
+        // Handle the case when the user is not authenticated
+        print('User not authenticated');
+      }
     } else {
-      // Handle the case when the user is not authenticated
-      print('User not authenticated');
+      print('invalid!');
     }
-  } else {
-    print('invalid!');
   }
-}
-
 
   Glassmorphism? _getGlassmorphismConfig() {
     if (!useGlassMorphism) {

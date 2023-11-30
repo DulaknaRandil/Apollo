@@ -100,8 +100,10 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Album Detail Page'),
+        backgroundColor: Colors.black,
+        title: Text('Album'),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -122,16 +124,16 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                       Text(
                         albumData['name'],
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       SizedBox(height: 8),
                       Text(
                         'Release Date: ${albumData['release_date']}',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey,
+                          color: Colors.grey.shade400,
                         ),
                       ),
                     ],
@@ -153,14 +155,21 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
           final song = albumSongs[index];
           final albumArtworkUrl = albumData['images'][0]['url'];
           return ListTile(
+            tileColor: Colors.black,
             leading: Image.network(
               albumArtworkUrl,
               width: 48, // Set the desired width for the song artwork
               height: 48, // Set the desired height for the song artwork
             ),
-            title: Text(song['name']),
+            title: Text(
+              song['name'],
+              style: TextStyle(color: Colors.white),
+            ),
             trailing: IconButton(
-              icon: Icon(Icons.play_circle_outline),
+              icon: Icon(
+                Icons.play_arrow,
+                color: Colors.white,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,

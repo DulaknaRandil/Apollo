@@ -19,6 +19,7 @@ Future<void> main() async {
     androidNotificationOngoing: true,
   );
   WidgetsFlutterBinding.ensureInitialized();
+
   MobileAds.instance.initialize();
   MobileAds.instance.updateRequestConfiguration(
     RequestConfiguration(

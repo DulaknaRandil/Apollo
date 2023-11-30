@@ -145,7 +145,7 @@ class _ChatPageState extends State<ChatPage> {
           Text(
             artistSummary,
             style: TextStyle(fontSize: 16, color: Colors.white),
-          ), //
+          ),
         ],
       ),
     );
@@ -155,7 +155,13 @@ class _ChatPageState extends State<ChatPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
       height: 70.0,
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors
+            .black, // Set the background color of the messaging box to black
+        border:
+            Border.all(color: Colors.amber), // Set the border color to amber
+        borderRadius: BorderRadius.circular(20.0),
+      ),
       child: Column(
         // Use a Column to display the artist's name and image in the input area
         children: <Widget>[
@@ -168,13 +174,18 @@ class _ChatPageState extends State<ChatPage> {
                   onChanged: (messageText) {
                     // You can add any custom logic for text input here
                   },
+                  style:
+                      TextStyle(color: Colors.amber), // Set text color to amber
                   decoration: InputDecoration.collapsed(
                     hintText: "Send a message...",
+                    hintStyle: TextStyle(
+                        color: Colors.amber), // Set hint text color to amber
                   ),
                 ),
               ),
               IconButton(
                 icon: Icon(Icons.send),
+                color: Colors.amber, // Set icon color to amber
                 onPressed: () {
                   // Handle user messages
                   handleUserMessage(
@@ -287,14 +298,19 @@ class ChatMessageWidget extends StatelessWidget {
             ),
           SizedBox(width: 8),
           Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: message.isUserMessage ? Colors.blue : Colors.green,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(50),
             ),
             child: Text(
               message.message,
               style: TextStyle(color: Colors.white),
+              maxLines: null,
+              overflow: TextOverflow.visible,
             ),
           ),
         ],

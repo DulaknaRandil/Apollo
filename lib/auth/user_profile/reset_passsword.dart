@@ -34,25 +34,28 @@ class _ResetPassScreenState extends State<ResetPassScreen> {
       onSaved: (value) {
         _emailController.text = value!;
       },
+      style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-        prefixIcon:const Icon(Icons.mail),
-        contentPadding:const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        prefixIcon: const Icon(Icons.mail),
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         labelText: "Email",
-         hintStyle: TextStyle(color: Colors.white),
+
+        //style: TextStyle(color: Colors.white),
+        hintStyle: TextStyle(color: Colors.white),
         labelStyle: TextStyle(color: Colors.white),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-          enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: Color.fromARGB(255, 255, 255, 255), // Change border color to white
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Color.fromARGB(
+                255, 255, 255, 255), // Change border color to white
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
-      borderRadius: BorderRadius.circular(10),
-      ),
-    ),
     );
-    
 
     final resetBtn = Material(
       elevation: 5,
@@ -119,19 +122,16 @@ class _ResetPassScreenState extends State<ResetPassScreen> {
                         child: Image.asset(
                           "assets/unlock.png",
                           width: 90,
-                          fit: BoxFit.contain,//
+                          fit: BoxFit.contain, //
                         ),
                       ),
-                       Text(
-                  "Please enter your email",
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 16,
-                    
-                  ),
-                  
-                ),
-                
+                      Text(
+                        "Please enter your email",
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 16,
+                        ),
+                      ),
                       const SizedBox(
                         height: 65,
                       ),

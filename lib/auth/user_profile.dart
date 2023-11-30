@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:apollodemo1/auth/user_profile/about.dart';
+import 'package:apollodemo1/auth/user_profile/advertisment.dart';
 import 'package:apollodemo1/auth/user_profile/freeplan.dart';
+import 'package:apollodemo1/auth/user_profile/notification.dart';
 import 'package:apollodemo1/home_screen/home_screen.dart';
 import 'package:apollodemo1/pages/auth_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -124,6 +127,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  void signUserOut() {
+    FirebaseAuth.instance.signOut();
+  }
+
   Future<void> _uploadImage(File file) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = FirebaseAuth.instance.currentUser;
@@ -157,18 +164,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),*/
         title: const Center(
           child: Text(
-            "Profile",
+            "Settings",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 21),
           ),
         ),
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.star_border_purple500_outlined,
-                color: (Colors.white),
-              ))
-        ],
+        actions: [],
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -187,12 +187,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         uName ?? "",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white),
                       ),
-                      Text(
-                        eMail ?? "",
-                        style: TextStyle(fontSize: 19),
-                      ),
+
                       const SizedBox(
                         height: 20,
                       ),
@@ -229,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const Divider(),
                             proMod(
                               title: "Account",
-                              icon: Icons.settings,
+                              icon: Icons.person_outline_outlined,
                               onPress: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -242,9 +241,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             proMod(
                                 title: "Notification",
-                                icon: Icons.person_outline_outlined,
+                                icon: Icons.notifications_none_outlined,
                                 onPress: () {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            NotificationPage()),
+                                  );
                                 }),
                             const SizedBox(
                               height: 10,
@@ -255,15 +258,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             proMod(
                                 title: "Advertisement",
-                                icon: Icons.info_outline,
-                                onPress: () {}),
+                                icon: Icons.ad_units_outlined,
+                                onPress: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => EmailPage()),
+                                  );
+                                }),
                             const SizedBox(
                               height: 10,
                             ),
                             proMod(
                               title: "About",
                               icon: Icons.info_outline,
-                              onPress: () {},
+                              onPress: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) => AboutScreen()),
+                                );
+                              },
                             ),
                             const SizedBox(
                               height: 10,
@@ -274,7 +287,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 textColor: Colors.orange,
                                 endIcon: false,
                                 onPress: () {
-                                  AuthPage();
+                                  signUserOut();
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => AuthPage()),
+                                  );
                                 }),
                           ],
                         ),

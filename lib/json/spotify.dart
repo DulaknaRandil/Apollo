@@ -97,11 +97,16 @@ class _SongListPageState extends State<SongListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Builder(
           // Use a Builder to access the context of the Scaffold
           builder: (BuildContext context) {
-            return Text(' ${widget.selectedMood.toUpperCase()}');
+            return Text(
+              ' ${widget.selectedMood.toUpperCase()}',
+              selectionColor: Colors.white,
+            );
           },
         ),
       ),
@@ -110,10 +115,18 @@ class _SongListPageState extends State<SongListPage> {
         itemBuilder: (context, index) {
           final song = songs[index];
           return Card(
+            color: Colors.amber.shade100,
             child: ListTile(
+              selectedColor: Colors.black,
               leading: Image.network(song['imageUrl'], width: 60, height: 60),
-              title: Text('${song['name']}'),
-              subtitle: Text('${song['artists'].join(", ")}'),
+              title: Text(
+                '${song['name']}',
+                selectionColor: Colors.amber,
+              ),
+              subtitle: Text(
+                '${song['artists'].join(", ")}',
+                selectionColor: Colors.grey.shade400,
+              ),
               trailing: IconButton(
                 icon: Icon(Icons.play_arrow),
                 onPressed: () {
